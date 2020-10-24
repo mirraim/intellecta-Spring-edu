@@ -42,4 +42,9 @@ public class OrdersJdbcRepository {
                         rs.getString("name")
                 ));
     }
+
+    public int delete(String id){
+
+        return jdbcTemplate.update("delete from order where id = ?", id);
+    }
 }

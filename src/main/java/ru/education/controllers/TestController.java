@@ -2,11 +2,11 @@ package ru.education.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.education.entity.OrdersJdbcDemo;
+import ru.education.entity.OrdersJpaDemo;
 import ru.education.jdbc.OrdersJdbcRepository;
+import ru.education.jpa.OrdersRepository;
 import ru.education.jpa.Product;
 import ru.education.jpa.ProductRepository;
 import ru.education.model.Formatter;
@@ -21,13 +21,19 @@ public class TestController {
 
     private final Formatter formatter;
 
-    private OrdersJdbcRepository ordersJdbcRepository;
+    private final OrdersJdbcRepository ordersJdbcRepository;
+
+    private final OrdersRepository ordersRepository;
 
     @Autowired
-    public TestController(@Qualifier("fooFormatter") Formatter formatter, ProductRepository productRepository, OrdersJdbcRepository ordersJdbcRepository) {
+    public TestController(@Qualifier("fooFormatter") Formatter formatter,
+                          ProductRepository productRepository,
+                          OrdersJdbcRepository ordersJdbcRepository,
+                          OrdersRepository ordersRepository) {
         this.formatter = formatter;
         this.productRepository = productRepository;
         this.ordersJdbcRepository = ordersJdbcRepository;
+        this.ordersRepository = ordersRepository;
     }
 
     @GetMapping("/hello")
@@ -46,7 +52,7 @@ public class TestController {
     }
 
     @GetMapping("/orders/count")
-    public Integer getordersCount(){
+    public Integer getOrdersCount(){
         return ordersJdbcRepository.count();
     }
 
@@ -58,5 +64,20 @@ public class TestController {
     @GetMapping("/products/ordered-anny")
     public List<Product> orderedProduct(){
         return ordersJdbcRepository.orderedProduct();
+    }
+
+    @GetMapping("/orders/jpa")
+    public List<OrdersJpaDemo> getOrdersJpa(){
+        return ordersRepository.findAll();
+    }
+
+    @PostMapping("/orders/add")
+    public OrdersJpaDemo addOrderJpa(@RequestBody OrdersJpaDemo ordersJpaDemo){
+        return ordersRepository.save(ordersJpaDemo);
+    }
+
+    @PostMapping("/orders/delete")
+    public int deleteOrder(@RequestBody String id){
+        return ordersJdbcRepository.delete(id);
     }
 }
